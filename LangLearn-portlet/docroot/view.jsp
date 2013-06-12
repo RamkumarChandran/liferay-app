@@ -142,7 +142,7 @@
 						} catch (Exception e) {}
 						
 
-						List<LLWord> wordList = LLWordLocalServiceUtil.findByLocale(localeFrom,wordStartPos,-1);
+						List<LLWord> wordList = LLWordLocalServiceUtil.findByLocale(localeFrom,wordStartPos,wordStartPos+1);
 						
 						if (!wordList.isEmpty()) {
 							wordFromExists = true;
@@ -246,7 +246,7 @@
 					} else if (wordStartPos < 0) {
 						wordStartPos = wordsCount-1;
 					}
-					List<LLWord> wordList = LLWordLocalServiceUtil.findByLocale(localeFrom,wordStartPos,-1);
+					List<LLWord> wordList = LLWordLocalServiceUtil.findByLocale(localeFrom,wordStartPos,wordStartPos+1);
 					
 					if (!wordList.isEmpty()) {
 						wordFromExists = true;
