@@ -381,7 +381,8 @@ public class LLSettingsWrapper implements LLSettings, ModelWrapper<LLSettings> {
 		return new LLSettingsWrapper((LLSettings)_llSettings.clone());
 	}
 
-	public int compareTo(LLSettings llSettings) {
+	public int compareTo(
+		ru.psavinov.liferay.langlearn.model.LLSettings llSettings) {
 		return _llSettings.compareTo(llSettings);
 	}
 
@@ -390,11 +391,11 @@ public class LLSettingsWrapper implements LLSettings, ModelWrapper<LLSettings> {
 		return _llSettings.hashCode();
 	}
 
-	public com.liferay.portal.model.CacheModel<LLSettings> toCacheModel() {
+	public com.liferay.portal.model.CacheModel<ru.psavinov.liferay.langlearn.model.LLSettings> toCacheModel() {
 		return _llSettings.toCacheModel();
 	}
 
-	public LLSettings toEscapedModel() {
+	public ru.psavinov.liferay.langlearn.model.LLSettings toEscapedModel() {
 		return new LLSettingsWrapper(_llSettings.toEscapedModel());
 	}
 

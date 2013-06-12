@@ -25,49 +25,46 @@ import ru.psavinov.liferay.langlearn.service.LLWordPairLocalServiceUtil;
 
 /**
  * 
- * Helper class, to process Language Learning Portlet actions
- * specific to the LLWord objects, saving and updating words,
- * creation and update of word pairs.
+ * Helper class, to process Language Learning Portlet actions specific to the
+ * LLWord objects, saving and updating words, creation and update of word pairs.
  * 
  * @author Pavel Savinov
- *
+ * 
  */
 public class LLWordHelper {
-	
+
 	public LLWordHelper(ActionRequest actionRequest) {
 		_debug("in LLWordHelper constructor");
-		setLanguage(ConvertUtil.toString(
-				actionRequest.getParameter("language")));
-		setWord(ConvertUtil.toString(
-				actionRequest.getParameter("word")));
-		setLanguageTo(ConvertUtil.toString(
-				actionRequest.getParameter("languageTo")));
-		setWordTo(ConvertUtil.toString(
-				actionRequest.getParameter("wordTo")));
-		setTranslated(ConvertUtil.toBoolean(
-				actionRequest.getParameter("addTranslation")));
-		setAction(ConvertUtil.toInt(
-				actionRequest.getParameter("actionType")));
+		setLanguage(ConvertUtil
+				.toString(actionRequest.getParameter("language")));
+		setWord(ConvertUtil.toString(actionRequest.getParameter("word")));
+		setLanguageTo(ConvertUtil.toString(actionRequest
+				.getParameter("languageTo")));
+		setWordTo(ConvertUtil.toString(actionRequest.getParameter("wordTo")));
+		setTranslated(ConvertUtil.toBoolean(actionRequest
+				.getParameter("addTranslation")));
+		setAction(ConvertUtil.toInt(actionRequest.getParameter("actionType")));
 		_setRequest(actionRequest);
-		setWordFromId(ConvertUtil.toLong(
-				actionRequest.getParameter("wordFromId")));
-		
+		setWordFromId(ConvertUtil.toLong(actionRequest
+				.getParameter("wordFromId")));
+
 		long uId = -1;
 		try {
 			_debug("Trying to get current userId from request");
 			uId = new Long(_getRequest().getRemoteUser()).longValue();
 		} catch (Exception e) {
-			_error("Error occured during userId conversion: "+e);
+			_error("Error occured during userId conversion: " + e);
 			e.printStackTrace();
 		}
 		setUserId(uId);
 	}
-	
+
 	/**
-	 * Process current action of helper.
-	 * Action is defined in the constructor, from the ActionRequest object.
+	 * Process current action of helper. Action is defined in the constructor,
+	 * from the ActionRequest object.
 	 * 
-	 * @param actionResponse Portlet response object
+	 * @param actionResponse
+	 *            Portlet response object
 	 * 
 	 * @throws SystemException
 	 */
@@ -77,14 +74,14 @@ public class LLWordHelper {
 		case 0:
 			_saveWord();
 			break;
-			
+
 		case 1:
 			_updateWord();
 			break;
 		}
-		
+
 	}
-	
+
 	public void setAction(int action) {
 		this._action = action;
 	}
@@ -148,52 +145,52 @@ public class LLWordHelper {
 	public long getUserId() {
 		return _userId;
 	}
-	
+
 	public static Log getLog() {
 		return _log;
 	}
-	
+
 	private void _debug(Object msg) {
 		if (getLog().isDebugEnabled()) {
 			getLog().debug(msg);
 		}
 	}
-	
+
 	private void _error(Object msg) {
 		if (getLog().isErrorEnabled()) {
 			getLog().error(msg);
 		}
-	} 
-	
+	}
+
 	private void _saveWord() throws SystemException {
 		_debug("in _saveWord()");
 		LLWord w = null;
 		Date now = new Date();
 
 		try {
-			_debug("Trying to find word = '" + getWord() + "' for locale = '" + 
+			_debug("Trying to find word = '" + getWord() + "' for locale = '"
+					+ getLanguage());
+			w = LLWordLocalServiceUtil.findByWordAndLocale(getWord(),
 					getLanguage());
-			w = LLWordLocalServiceUtil.findByWordAndLocale(
-					getWord(),getLanguage());
 			if (w != null) {
 				_debug("Such word already exists in specified locale");
 				SessionErrors.add(_getRequest(), "wordAlreadyExists");
 			}
 		} catch (NoSuchLLWordException e) {
-			_debug("Trying to create word = '" + getWord() + "' for locale = '" + 
-					getLanguage());
-			long newId = CounterLocalServiceUtil.increment(
-					LLWord.class.getName());
-			
+			_debug("Trying to create word = '" + getWord() + "' for locale = '"
+					+ getLanguage());
+			long newId = CounterLocalServiceUtil.increment(LLWord.class
+					.getName());
+
 			PortletPreferences prefs = _getRequest().getPreferences();
 			try {
-				prefs.setValue("wordToShowId",newId+"");
+				prefs.setValue("wordToShowId", newId + "");
 				prefs.store();
 			} catch (Exception e1) {
 				_error("Error occured during preferences saving: " + e1);
 				e1.printStackTrace();
-			}		
-			
+			}
+
 			w = new LLWordImpl();
 			w.setWordId(newId);
 			w.setUserId(getUserId());
@@ -201,153 +198,146 @@ public class LLWordHelper {
 			w.setLocale(getLanguage());
 			w.setWord(getWord());
 			LLWordLocalServiceUtil.addLLWord(w);
-			
-			if (isTranslated()) {
+
+			if (isTranslated() && !getWordTo().trim().equals("")) {
 				_debug("Trying to save word translation");
 				LLWord tw = new LLWordImpl();
-				long twid = CounterLocalServiceUtil.increment(
-						LLWord.class.getName());
+				long twid = CounterLocalServiceUtil.increment(LLWord.class
+						.getName());
 				tw.setWordId(twid);
 				tw.setUserId(getUserId());
 				tw.setCreateDate(now);
 				tw.setLocale(getLanguageTo());
 				tw.setWord(getWordTo());
 				LLWordLocalServiceUtil.addLLWord(tw);
-				
+
 				_debug("Creating new word pair");
 				LLWordPair pair = new LLWordPairImpl();
 				pair.setWordFromId(newId);
 				pair.setWordToId(twid);
 				pair.setUserId(getUserId());
 				pair.setCreateDate(now);
-				pair.setWordPairId(
-						CounterLocalServiceUtil.increment(
-								LLWordPair.class.getName()));
+				pair.setWordPairId(CounterLocalServiceUtil
+						.increment(LLWordPair.class.getName()));
 				LLWordPairLocalServiceUtil.addLLWordPair(pair);
-				
+
 				_debug("Creating reversed pair for specified locales");
 				LLWordPair rpair = new LLWordPairImpl();
 				rpair.setWordFromId(twid);
 				rpair.setWordToId(newId);
 				rpair.setUserId(getUserId());
 				rpair.setCreateDate(now);
-				rpair.setWordPairId(
-						CounterLocalServiceUtil.increment(
-								LLWordPair.class.getName()));
-				LLWordPairLocalServiceUtil.addLLWordPair(rpair);				
+				rpair.setWordPairId(CounterLocalServiceUtil
+						.increment(LLWordPair.class.getName()));
+				LLWordPairLocalServiceUtil.addLLWordPair(rpair);
 			}
 			_debug("Word '" + getWord() + "' added successfully");
-			SessionMessages.add(_getRequest(),"wordAddedSuccessfully");
-		}		
+			SessionMessages.add(_getRequest(), "wordAddedSuccessfully");
+		}
 	}
-	
+
 	private void _updateWord() throws SystemException {
 		_debug("in _updateWord()");
 		LLWord w = null;
 		Date now = new Date();
 		PortletPreferences prefs = _getRequest().getPreferences();
-		long wordToId = new Long(
-				prefs.getValue("wordToId", "-1")).longValue();
+		long wordToId = new Long(prefs.getValue("wordToId", "-1")).longValue();
 
 		try {
-			_debug("Trying to find word = '" + getWordTo() + "' for locale = '" + 
+			_debug("Trying to find word = '" + getWordTo() + "' for locale = '"
+					+ getLanguageTo());
+			w = LLWordLocalServiceUtil.findByWordAndLocale(getWordTo(),
 					getLanguageTo());
-			w = LLWordLocalServiceUtil.findByWordAndLocale(
-					getWordTo(),getLanguageTo());			
 		} catch (NoSuchLLWordException e) {
-			_debug("Trying to create word = '" + getWordTo() +
-					"' for locale = '" + 
-					getLanguageTo());
-			long newId = CounterLocalServiceUtil.increment(
-					LLWord.class.getName());
-			w = new LLWordImpl();
-			w.setWordId(newId);	
-			w.setLocale(getLanguageTo());
-			w.setWord(getWordTo());
-			w.setUserId(getUserId());
-			w.setCreateDate(now);
-			LLWordLocalServiceUtil.addLLWord(w);
-			_debug("Word '" + getWordTo() + "' added successfully");
-		}	
-		
+			_debug("Trying to create word = '" + getWordTo()
+					+ "' for locale = '" + getLanguageTo());
+			if (!getWordTo().trim().equals("")) {
+				long newId = CounterLocalServiceUtil.increment(LLWord.class
+						.getName());
+				w = new LLWordImpl();
+				w.setWordId(newId);
+				w.setLocale(getLanguageTo());
+				w.setWord(getWordTo());
+				w.setUserId(getUserId());
+				w.setCreateDate(now);
+				LLWordLocalServiceUtil.addLLWord(w);
+				_debug("Word '" + getWordTo() + "' added successfully");
+			}
+		}
+
 		try {
-			prefs.setValue("wordToShowId",getWordFromId()+"");
+			prefs.setValue("wordToShowId", getWordFromId() + "");
 			prefs.setValue("wordToId", "-1");
 			prefs.setValue("wordFromId", "-1");
 			prefs.store();
 		} catch (Exception e1) {
 			_error("Error occured during preferences saving: " + e1);
 			e1.printStackTrace();
-		} 	
-		
+		}
+
 		LLWordPair pair = null;
 		try {
 			_debug("Trying to find word pair with specified words");
-			pair = LLWordPairLocalServiceUtil.findByWords(
-					getWordFromId(), wordToId);
+			pair = LLWordPairLocalServiceUtil.findByWords(getWordFromId(),
+					wordToId);
 			pair.setWordToId(w.getWordId());
 			pair.setModifiedDate(now);
-			_debug("Updating wordPair (id = " + pair.getWordPairId() + ") " + 
-					"wordToId = " + w.getWordId() + ", wordFromId = " +
-					getWordFromId());
+			_debug("Updating wordPair (id = " + pair.getWordPairId() + ") "
+					+ "wordToId = " + w.getWordId() + ", wordFromId = "
+					+ getWordFromId());
 			LLWordPairLocalServiceUtil.updateLLWordPair(pair);
 			_debug("Word pair updated successfully");
 		} catch (NoSuchLLWordPairException e) {
-			_debug("Creating word pair with wordToId = " + w.getWordId() +
-					", wordFromId = " +
-					getWordFromId());
+			_debug("Creating word pair with wordToId = " + w.getWordId()
+					+ ", wordFromId = " + getWordFromId());
 			pair = new LLWordPairImpl();
 			pair.setWordFromId(getWordFromId());
 			pair.setWordToId(w.getWordId());
 			pair.setCreateDate(now);
 			pair.setUserId(getUserId());
-			pair.setWordPairId(
-					CounterLocalServiceUtil.increment(
-							LLWordPair.class.getName()));
-			LLWordPairLocalServiceUtil.addLLWordPair(pair);	
+			pair.setWordPairId(CounterLocalServiceUtil
+					.increment(LLWordPair.class.getName()));
+			LLWordPairLocalServiceUtil.addLLWordPair(pair);
 			_debug("Word pair added successfully");
-		}		
-		
+		}
+
 		LLWordPair rpair = null;
 		try {
 			_debug("Trying to find reversed word pair with specified words");
-			rpair = LLWordPairLocalServiceUtil.findByWords(
-					wordToId,getWordFromId());
+			rpair = LLWordPairLocalServiceUtil.findByWords(wordToId,
+					getWordFromId());
 			rpair.setWordFromId(w.getWordId());
 			rpair.setModifiedDate(now);
-			_debug("Updating wordPair (id = " + pair.getWordPairId() + ") " + 
-					"wordToId = " + w.getWordId() + ", wordFromId = " +
-					getWordFromId());
+			_debug("Updating wordPair (id = " + pair.getWordPairId() + ") "
+					+ "wordToId = " + w.getWordId() + ", wordFromId = "
+					+ getWordFromId());
 			LLWordPairLocalServiceUtil.updateLLWordPair(rpair);
 			_debug("Reversed word pair updated successfully");
 		} catch (NoSuchLLWordPairException e) {
-			_debug("Creating reversed word pair with wordToId = " + 
-					getWordFromId() +
-					", wordFromId = " +
-					w.getWordId());
+			_debug("Creating reversed word pair with wordToId = "
+					+ getWordFromId() + ", wordFromId = " + w.getWordId());
 			rpair = new LLWordPairImpl();
 			rpair.setWordFromId(w.getWordId());
 			rpair.setWordToId(getWordFromId());
 			rpair.setCreateDate(now);
 			rpair.setUserId(getUserId());
-			rpair.setWordPairId(
-					CounterLocalServiceUtil.increment(
-							LLWordPair.class.getName()));
+			rpair.setWordPairId(CounterLocalServiceUtil
+					.increment(LLWordPair.class.getName()));
 			LLWordPairLocalServiceUtil.addLLWordPair(rpair);
 			_debug("Reversed word pair added successfully");
-		}		
-		
-		SessionMessages.add(_getRequest(),"wordAddedSuccessfully");
+		}
+
+		SessionMessages.add(_getRequest(), "wordAddedSuccessfully");
 	}
 
 	private ActionRequest _getRequest() {
 		return this._request;
 	}
-	
+
 	private void _setRequest(ActionRequest r) {
 		this._request = r;
 	}
-	
+
 	private long _wordFromId;
 	private String _language;
 	private String _word;
@@ -357,7 +347,7 @@ public class LLWordHelper {
 	private int _action;
 	private ActionRequest _request;
 	private long _userId;
-	
+
 	private static final Log _log = LogFactoryUtil.getLog(LLWordHelper.class);
 
 }

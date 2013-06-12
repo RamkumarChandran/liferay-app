@@ -1,10 +1,12 @@
 package ru.psavinov.liferay.langlearn.portlet.util;
 
+import com.liferay.portal.kernel.util.HtmlUtil;
+
 public class ConvertUtil {
 
 	public static String toString(Object parameter) {
 		if (parameter != null) {
-			return parameter.toString();
+			return HtmlUtil.escape(parameter.toString());
 		} else {
 			return "";
 		}

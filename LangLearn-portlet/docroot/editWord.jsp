@@ -19,6 +19,7 @@
 <%@ page import="java.util.Locale" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="javax.portlet.PortletPreferences" %>
+<%@ page import="ru.psavinov.liferay.langlearn.portlet.helper.LocaleHelper" %>
 <%@ page import="ru.psavinov.liferay.langlearn.service.LLSettingsLocalServiceUtil" %>
 <%@ page import="ru.psavinov.liferay.langlearn.service.LLWordPairLocalServiceUtil" %>
 <%@ page import="ru.psavinov.liferay.langlearn.service.LLWordLocalServiceUtil" %>
@@ -58,16 +59,18 @@
 	if (userId != -1) {		
 		try {
 			settings = LLSettingsLocalServiceUtil.findByUserId(userId);
-			localeFrom = settings.getLocaleFrom();
-			localeTo = settings.getLocaleTo();
-			wordsPerDay = settings.getWordsPerDay();
-			correct = true;
+			if (settings != null) {
+				localeFrom = settings.getLocaleFrom();
+				localeTo = settings.getLocaleTo();
+				wordsPerDay = settings.getWordsPerDay();
+				correct = true;
+			}
 		} catch (NoSuchLLSettingsException e) {
 			settings = null;
 		}
 	}
 %>
-<div style="text-align:left;border:1px solid black; padding:3px;">
+<div style="text-align:left;border:1px solid black; padding:3px; border-radius:4px;">
 	<%=res.getString("LangLearn.currentMode") %>: <b><%=res.getString("LangLearn.mode.translation")%></b>,
 	&nbsp;<b><%= new Locale(localeFrom).getDisplayLanguage() %></b>&nbsp;&lt;-&gt;
 	&nbsp;<b><%= new Locale(localeTo).getDisplayLanguage() %></b>
@@ -88,7 +91,7 @@
 		<td>
 			<aui:select name="languageTo" id="LLWordLangTo" label="" style="width:100%;">
 			<%
-				for (Locale locale : Locale.getAvailableLocales()) {
+				for (Locale locale : LocaleHelper.getSortedLocales()) {
 					if (locale.getDisplayCountry().equals("")) {
 			%>
 				<aui:option value="<%=locale.getLanguage()%>">
@@ -104,7 +107,10 @@
 		</tr>
 		<tr>
 		<td><%=res.getString("LangLearn.mode.translation")%></td>
-		<td><aui:input name="wordTo" type="text" label="" value='<%=wordTo!=null ? wordTo.getWord() : ""%>' style="width:100%;"/></td>
+		<td><aui:input name="wordTo" type="text" label="" value='<%=wordTo!=null ? wordTo.getWord() : ""%>' style="width:100%;">
+			<aui:validator name="required"/> 
+			<aui:validator name="rangeLength">[1,250]</aui:validator>
+		</aui:input></td>
 		</tr>
 		
 	</table><br/><hr/>

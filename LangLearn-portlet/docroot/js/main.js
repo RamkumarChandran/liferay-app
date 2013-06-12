@@ -1,6 +1,6 @@
 if (!document.getElementsByClassName) {
 	document.getElementsByClassName = function(cl) {
-		var retNode, myclass, elem, classes;
+		var myclass, elem, classes;
 		retnode = [];
 		myclass = new RegExp('\\b'+cl+'\\b');
 		elem = this.getElementsByTagName('*');
@@ -8,7 +8,7 @@ if (!document.getElementsByClassName) {
 			classes = elem[i].className;
 			if (myclass.test(classes)) retnode.push(elem[i]);
 		}
-	}
+	};
 }
 
 LangLearn = {

@@ -381,7 +381,7 @@ public class LLStatWrapper implements LLStat, ModelWrapper<LLStat> {
 		return new LLStatWrapper((LLStat)_llStat.clone());
 	}
 
-	public int compareTo(LLStat llStat) {
+	public int compareTo(ru.psavinov.liferay.langlearn.model.LLStat llStat) {
 		return _llStat.compareTo(llStat);
 	}
 
@@ -390,11 +390,11 @@ public class LLStatWrapper implements LLStat, ModelWrapper<LLStat> {
 		return _llStat.hashCode();
 	}
 
-	public com.liferay.portal.model.CacheModel<LLStat> toCacheModel() {
+	public com.liferay.portal.model.CacheModel<ru.psavinov.liferay.langlearn.model.LLStat> toCacheModel() {
 		return _llStat.toCacheModel();
 	}
 
-	public LLStat toEscapedModel() {
+	public ru.psavinov.liferay.langlearn.model.LLStat toEscapedModel() {
 		return new LLStatWrapper(_llStat.toEscapedModel());
 	}
 

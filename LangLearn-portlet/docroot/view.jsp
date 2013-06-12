@@ -59,11 +59,13 @@
 	if (userId != -1) {		
 		try {
 			settings = LLSettingsLocalServiceUtil.findByUserId(userId);
-			localeFrom = settings.getLocaleFrom();
-			localeTo = settings.getLocaleTo();
-			mode = settings.getMode();
-			wordsPerDay = settings.getWordsPerDay();
-			correct = true;
+			if (settings != null) {
+				localeFrom = settings.getLocaleFrom();
+				localeTo = settings.getLocaleTo();
+				mode = settings.getMode();
+				wordsPerDay = settings.getWordsPerDay();
+				correct = true;
+			}
 		} catch (NoSuchLLSettingsException e) {
 			settings = null;
 		}
@@ -84,7 +86,7 @@
 		switch (mode) {
 		case 1:
 				%>
-					<div style="text-align:left;border:1px solid black; padding:3px;">
+					<div style="text-align:left;border:1px solid black; border-radius:4px; padding:3px;">
 					<%=res.getString("LangLearn.currentMode") %>: <b><%=res.getString("LangLearn.mode.learning")%></b>,
 					&nbsp;<b><%= new Locale(localeFrom).getDisplayLanguage() %></b>&nbsp;&lt;-&gt;
 					&nbsp;<b><%= new Locale(localeTo).getDisplayLanguage() %></b>
@@ -107,34 +109,40 @@
 					int wordsCount = LLWordLocalServiceUtil.findByLocale(localeFrom).size();
 					int savedPos = -1;
 					Date statDate = new Date();
-					if (wordsCount > 0) {
+					if (wordsCount > 0) { 
 						int wordStartPos = 0;
 						try {
 							lstat = LLStatLocalServiceUtil.findByUserIdAndType(userId,
 								LLPortletConst.STATTYPE_LEARN);
-							wordStartPos = lstat.getStatInt();
-							
+							savedPos = lstat.getStatInt() > 0 ? lstat.getStatInt() : 0;
+							if ((wordsCount-savedPos)<wordsPerDay) {
+								savedPos = 0;
+							}
+							wordStartPos = new Integer(pp.getValue("LLWP",String.valueOf(savedPos))).intValue() >= savedPos ?
+								new Integer(pp.getValue("LLWP",String.valueOf(savedPos))).intValue() : savedPos;
 							statDate = lstat.getCreateDate();
 							if (renderRequest.getParameter("direction")!= null &&
 									renderRequest.getParameter("direction").equals("prev")) {
-								wordStartPos = wordStartPos - 2;
-							}							
+								wordStartPos--;
+								if (wordStartPos < savedPos) {
+									System.out.println(wordsCount+"=="+savedPos+"=="+wordsPerDay);
+									wordStartPos = (savedPos+wordsPerDay-1) < wordsCount-1 ? (savedPos+wordsPerDay-1) : wordsCount-1;
+								}								
+							} else {
+								wordStartPos++;
+								if (wordStartPos >= wordsCount) {
+									wordStartPos = savedPos;
+								} else if (wordStartPos < wordsCount && wordStartPos >= savedPos+wordsPerDay){
+									wordStartPos = savedPos;
+								} else if (wordStartPos < savedPos) {
+									wordStartPos = savedPos+wordsPerDay-1;
+								}								
+							}
+							
 						} catch (Exception e) {}
-						savedPos = wordStartPos;
-						if (todayCount == wordsPerDay) {
-							todayCount = 0;							
-						}
+						
 
-						wordStartPos += todayCount;
-						if (wordStartPos >= wordsCount) {
-							todayCount = 0;
-							wordStartPos = savedPos;
-						} else if (wordStartPos < 0) {
-							todayCount = 0;
-							wordStartPos = wordsCount-1;
-						}
-						List<LLWord> wordList = LLWordLocalServiceUtil.findByLocale(localeFrom,wordStartPos,
-								wordStartPos+1);
+						List<LLWord> wordList = LLWordLocalServiceUtil.findByLocale(localeFrom,wordStartPos,-1);
 						
 						if (!wordList.isEmpty()) {
 							wordFromExists = true;
@@ -155,6 +163,7 @@
 							PortletPreferences prefs = renderRequest.getPreferences();
 							prefs.setValue("wordFromId",wrd.getWordId() + "");
 							prefs.setValue("wordToId","-1");
+							prefs.setValue("LLWP",wordStartPos+"");
 							prefs.store();
 							if (pair != null){
 								LLWord wrdTo = LLWordLocalServiceUtil.getLLWord(pair.getWordToId());
@@ -172,6 +181,9 @@
 							}
 						}
 						todayCount++;
+						if (todayCount == wordsPerDay) {
+							todayCount = 0;
+						}
 						Date now = new Date();
 						pp.setValue("LLTodayCount",todayCount+"");
 						pp.store();
@@ -187,7 +199,9 @@
 									now.getYear()==statDate.getYear()) {
 								lstat.setStatInt(savedPos);	
 							} else {
-								lstat.setStatInt(savedPos+wordsPerDay);
+								if (savedPos+wordsPerDay<wordsCount)
+									lstat.setStatInt(savedPos+wordsPerDay);
+								else lstat.setStatInt(0);
 							}
 							lstat.setCreateDate(now);							
 							LLStatLocalServiceUtil.addLLStat(lstat);
@@ -197,8 +211,9 @@
 									now.getYear()==statDate.getYear()) {
 								lstat.setStatInt(savedPos);	
 							} else {
-								lstat.setStatInt(savedPos+wordsPerDay);
-							}
+								if (savedPos+wordsPerDay<wordsCount)
+									lstat.setStatInt(savedPos+wordsPerDay);
+								else lstat.setStatInt(0);							}
 							lstat.setCreateDate(now);
 							LLStatLocalServiceUtil.updateLLStat(lstat);
 						}					
@@ -208,7 +223,7 @@
 				break;
 			default:
 				%>
-				<div style="text-align:left;border:1px solid black; padding:3px;">
+				<div style="text-align:left;border:1px solid black; border-radius:4px;padding:3px;">
 				<%=res.getString("LangLearn.currentMode") %>: <b><%=res.getString("LangLearn.mode.translation")%></b>,
 				&nbsp;<b><%= new Locale(localeFrom).getDisplayLanguage() %></b>&nbsp;&lt;-&gt;
 				&nbsp;<b><%= new Locale(localeTo).getDisplayLanguage() %></b>
@@ -231,8 +246,7 @@
 					} else if (wordStartPos < 0) {
 						wordStartPos = wordsCount-1;
 					}
-					List<LLWord> wordList = LLWordLocalServiceUtil.findByLocale(localeFrom,wordStartPos,
-							wordStartPos+1);
+					List<LLWord> wordList = LLWordLocalServiceUtil.findByLocale(localeFrom,wordStartPos,-1);
 					
 					if (!wordList.isEmpty()) {
 						wordFromExists = true;

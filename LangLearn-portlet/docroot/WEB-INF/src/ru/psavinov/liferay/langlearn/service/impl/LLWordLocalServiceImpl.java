@@ -53,5 +53,6 @@ public class LLWordLocalServiceImpl extends LLWordLocalServiceBaseImpl {
 	
 	public List<LLWord> findByLocale(String locale,int start, int end) throws SystemException {
 		return LLWordUtil.findByLocale(locale,start,end);
+		
 	}
 }

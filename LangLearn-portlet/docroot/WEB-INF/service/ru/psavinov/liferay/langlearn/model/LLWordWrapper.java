@@ -331,7 +331,7 @@ public class LLWordWrapper implements LLWord, ModelWrapper<LLWord> {
 		return new LLWordWrapper((LLWord)_llWord.clone());
 	}
 
-	public int compareTo(LLWord llWord) {
+	public int compareTo(ru.psavinov.liferay.langlearn.model.LLWord llWord) {
 		return _llWord.compareTo(llWord);
 	}
 
@@ -340,11 +340,11 @@ public class LLWordWrapper implements LLWord, ModelWrapper<LLWord> {
 		return _llWord.hashCode();
 	}
 
-	public com.liferay.portal.model.CacheModel<LLWord> toCacheModel() {
+	public com.liferay.portal.model.CacheModel<ru.psavinov.liferay.langlearn.model.LLWord> toCacheModel() {
 		return _llWord.toCacheModel();
 	}
 
-	public LLWord toEscapedModel() {
+	public ru.psavinov.liferay.langlearn.model.LLWord toEscapedModel() {
 		return new LLWordWrapper(_llWord.toEscapedModel());
 	}
 
