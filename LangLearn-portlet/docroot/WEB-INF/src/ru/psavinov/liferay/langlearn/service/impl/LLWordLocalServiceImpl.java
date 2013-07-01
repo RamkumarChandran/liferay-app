@@ -14,13 +14,23 @@
 
 package ru.psavinov.liferay.langlearn.service.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Projection;
+import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.SystemException;
 
 import ru.psavinov.liferay.langlearn.NoSuchLLWordException;
 import ru.psavinov.liferay.langlearn.model.LLWord;
+import ru.psavinov.liferay.langlearn.model.LLWordPair;
 import ru.psavinov.liferay.langlearn.service.base.LLWordLocalServiceBaseImpl;
+import ru.psavinov.liferay.langlearn.service.persistence.LLWordPairUtil;
 import ru.psavinov.liferay.langlearn.service.persistence.LLWordUtil;
 
 /**
@@ -54,5 +64,33 @@ public class LLWordLocalServiceImpl extends LLWordLocalServiceBaseImpl {
 	public List<LLWord> findByLocale(String locale,int start, int end) throws SystemException {
 		return LLWordUtil.findByLocale(locale,start,end);
 		
+	}
+	
+	public List<LLWord> findByLocaleWithPair(String locale) throws SystemException {
+		DynamicQuery wordQuery = DynamicQueryFactoryUtil.forClass(LLWord.class);
+		List<LLWordPair> pairList = LLWordPairUtil.findAll();
+		wordQuery.add(PropertyFactoryUtil.forName("locale").eq(locale));
+		Long[] idArray = new Long[pairList.size()];
+		int k=0;
+		for (LLWordPair pair : pairList){
+			idArray[k++] = pair.getWordFromId();
+		}
+		
+		wordQuery.add(PropertyFactoryUtil.forName("wordId").in(idArray));
+		return LLWordUtil.findWithDynamicQuery(wordQuery);
+	}
+	
+	public List<LLWord> findByLocaleWithPair(String locale,int start, int end) throws SystemException {
+		DynamicQuery wordQuery = DynamicQueryFactoryUtil.forClass(LLWord.class);
+		List<LLWordPair> pairList = LLWordPairUtil.findAll();
+		wordQuery.add(PropertyFactoryUtil.forName("locale").eq(locale));
+		Long[] idArray = new Long[pairList.size()];
+		int k=0;
+		for (LLWordPair pair : pairList){
+			idArray[k++] = pair.getWordFromId();
+		}
+		
+		wordQuery.add(PropertyFactoryUtil.forName("wordId").in(idArray));
+		return LLWordUtil.findWithDynamicQuery(wordQuery, start, end);
 	}
 }

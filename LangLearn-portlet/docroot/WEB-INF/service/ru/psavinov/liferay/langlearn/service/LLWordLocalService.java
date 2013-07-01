@@ -255,4 +255,12 @@ public interface LLWordLocalService extends BaseLocalService,
 	public java.util.List<ru.psavinov.liferay.langlearn.model.LLWord> findByLocale(
 		java.lang.String locale, int start, int end)
 		throws com.liferay.portal.kernel.exception.SystemException;
+
+	public java.util.List<ru.psavinov.liferay.langlearn.model.LLWord> findByLocaleWithPair(
+		java.lang.String locale)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	public java.util.List<ru.psavinov.liferay.langlearn.model.LLWord> findByLocaleWithPair(
+		java.lang.String locale, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException;
 }

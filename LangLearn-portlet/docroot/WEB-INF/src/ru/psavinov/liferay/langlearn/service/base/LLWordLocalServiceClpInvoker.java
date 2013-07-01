@@ -125,6 +125,14 @@ public class LLWordLocalServiceClpInvoker {
 		_methodName64 = "findByLocale";
 
 		_methodParameterTypes64 = new String[] { "java.lang.String", "int", "int" };
+
+		_methodName65 = "findByLocaleWithPair";
+
+		_methodParameterTypes65 = new String[] { "java.lang.String" };
+
+		_methodName66 = "findByLocaleWithPair";
+
+		_methodParameterTypes66 = new String[] { "java.lang.String", "int", "int" };
 	}
 
 	public Object invokeMethod(String name, String[] parameterTypes,
@@ -244,6 +252,18 @@ public class LLWordLocalServiceClpInvoker {
 				((Integer)arguments[2]).intValue());
 		}
 
+		if (_methodName65.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes65, parameterTypes)) {
+			return LLWordLocalServiceUtil.findByLocaleWithPair((java.lang.String)arguments[0]);
+		}
+
+		if (_methodName66.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes66, parameterTypes)) {
+			return LLWordLocalServiceUtil.findByLocaleWithPair((java.lang.String)arguments[0],
+				((Integer)arguments[1]).intValue(),
+				((Integer)arguments[2]).intValue());
+		}
+
 		throw new UnsupportedOperationException();
 	}
 
@@ -289,4 +309,8 @@ public class LLWordLocalServiceClpInvoker {
 	private String[] _methodParameterTypes63;
 	private String _methodName64;
 	private String[] _methodParameterTypes64;
+	private String _methodName65;
+	private String[] _methodParameterTypes65;
+	private String _methodName66;
+	private String[] _methodParameterTypes66;
 }

@@ -5,7 +5,6 @@ create index IX_2B9F5DD on LangLearn_LLStat (userId, createDate, statType);
 create index IX_C5B7101F on LangLearn_LLStat (userId, statType);
 
 create index IX_FAA61187 on LangLearn_LLWord (locale);
-create index IX_2EC340F7 on LangLearn_LLWord (word);
 create index IX_907ADD45 on LangLearn_LLWord (word, locale);
 
 create index IX_F90A3E76 on LangLearn_LLWordPair (wordFromId);

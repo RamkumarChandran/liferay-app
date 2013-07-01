@@ -281,6 +281,18 @@ public class LLWordLocalServiceWrapper implements LLWordLocalService,
 		return _llWordLocalService.findByLocale(locale, start, end);
 	}
 
+	public java.util.List<ru.psavinov.liferay.langlearn.model.LLWord> findByLocaleWithPair(
+		java.lang.String locale)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _llWordLocalService.findByLocaleWithPair(locale);
+	}
+
+	public java.util.List<ru.psavinov.liferay.langlearn.model.LLWord> findByLocaleWithPair(
+		java.lang.String locale, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _llWordLocalService.findByLocaleWithPair(locale, start, end);
+	}
+
 	/**
 	 * @deprecated Renamed to {@link #getWrappedService}
 	 */

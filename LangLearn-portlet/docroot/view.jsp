@@ -53,7 +53,7 @@
 	boolean wordToExists = false;
 	
 	try {
-		userId = new Long(request.getRemoteUser()).longValue();
+		userId = request.getRemoteUser() != null ? new Long(request.getRemoteUser()).longValue() : -1;
 	} catch (Exception e) {}
 	LLSettings settings = null;
 	if (userId != -1) {		
@@ -106,8 +106,8 @@
 					LLStat lstat = null;
 					PortletPreferences pp = renderRequest.getPreferences();
 					int todayCount = new Integer(pp.getValue("LLTodayCount","0")).intValue();
-					int wordsCount = LLWordLocalServiceUtil.findByLocale(localeFrom).size();
-					int savedPos = -1;
+					int wordsCount = LLWordLocalServiceUtil.findByLocaleWithPair(localeFrom).size();
+					int savedPos = -1;  
 					Date statDate = new Date();
 					if (wordsCount > 0) { 
 						int wordStartPos = 0;
@@ -117,7 +117,7 @@
 							savedPos = lstat.getStatInt() > 0 ? lstat.getStatInt() : 0;
 							if ((wordsCount-savedPos)<wordsPerDay) {
 								savedPos = 0;
-							}
+							} 
 							wordStartPos = new Integer(pp.getValue("LLWP",String.valueOf(savedPos))).intValue() >= savedPos ?
 								new Integer(pp.getValue("LLWP",String.valueOf(savedPos))).intValue() : savedPos;
 							statDate = lstat.getCreateDate();
@@ -125,7 +125,6 @@
 									renderRequest.getParameter("direction").equals("prev")) {
 								wordStartPos--;
 								if (wordStartPos < savedPos) {
-									System.out.println(wordsCount+"=="+savedPos+"=="+wordsPerDay);
 									wordStartPos = (savedPos+wordsPerDay-1) < wordsCount-1 ? (savedPos+wordsPerDay-1) : wordsCount-1;
 								}								
 							} else {
@@ -138,12 +137,11 @@
 									wordStartPos = savedPos+wordsPerDay-1;
 								}								
 							}
-							
 						} catch (Exception e) {}
 						
 
-						List<LLWord> wordList = LLWordLocalServiceUtil.findByLocale(localeFrom,wordStartPos,wordStartPos+1);
-						
+						List<LLWord> wordList = LLWordLocalServiceUtil.findByLocaleWithPair(localeFrom,wordStartPos,wordStartPos+1);
+
 						if (!wordList.isEmpty()) {
 							wordFromExists = true;
 							PortletPreferences pref = renderRequest.getPreferences();
@@ -156,6 +154,7 @@
 							}
 							LLWordPair pair = LLWordPairLocalServiceUtil.findByWordFromAndLocale(
 									wrd.getWordId(),localeTo);
+							
 							%>	<center>
 								<span style="font-weight:bolder;font-style:italic;font-size:13px;"><%=wrd.getWord()%></span><br/>
 								<span style="font-size:14px;padding:4px;">=</span><br/>
@@ -326,7 +325,7 @@
 <div id="buttonsDiv">
 	<hr/>
 	<%
-	if (userId > 0 && mode != 1) {
+	if (userId > 0 && mode != 1 && correct) {
 	%>
 	<aui:button value='<%=res.getString("LangLearn.addWordBtn")%>'  onClick="document.location='${addWordUrl}';"/>
 	<% } 

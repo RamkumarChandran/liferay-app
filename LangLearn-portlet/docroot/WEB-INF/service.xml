@@ -8,7 +8,7 @@
         <column name="locale" type="String"></column>
         <column name="word" type="String"></column>
         
-		<!-- Audit fields -->
+		<!-- Audit fields --> 
 
 		<column name="companyId" type="long" />
 		<column name="userId" type="long" />

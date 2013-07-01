@@ -19,7 +19,8 @@ public class LangLearnPortlet extends MVCPortlet {
 	@Override
 	public void processAction(ActionRequest actionRequest,
 			ActionResponse actionResponse) throws IOException, PortletException {
-		String option = actionRequest.getParameter("opt");
+		String option = actionRequest.getParameter("opt") != null ? 
+				actionRequest.getParameter("opt") : "-1";
 		
 		int optInt = -1;
 		try {
@@ -37,7 +38,6 @@ public class LangLearnPortlet extends MVCPortlet {
 					setHelper.process(actionResponse);
 				} catch (SystemException e) {
 					_error("System error occured: "+e);
-					e.printStackTrace();
 				}
 			break;
 			
@@ -48,7 +48,6 @@ public class LangLearnPortlet extends MVCPortlet {
 					wordHelper.process(actionResponse);
 				} catch (SystemException e) {
 					_error("System error occured: "+e);
-					e.printStackTrace();
 				}
 			break;
 		}

@@ -291,6 +291,18 @@ public class LLWordLocalServiceUtil {
 		return getService().findByLocale(locale, start, end);
 	}
 
+	public static java.util.List<ru.psavinov.liferay.langlearn.model.LLWord> findByLocaleWithPair(
+		java.lang.String locale)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().findByLocaleWithPair(locale);
+	}
+
+	public static java.util.List<ru.psavinov.liferay.langlearn.model.LLWord> findByLocaleWithPair(
+		java.lang.String locale, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().findByLocaleWithPair(locale, start, end);
+	}
+
 	public static void clearService() {
 		_service = null;
 	}

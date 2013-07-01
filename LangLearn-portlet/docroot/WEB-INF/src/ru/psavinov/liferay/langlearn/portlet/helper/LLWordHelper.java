@@ -54,7 +54,6 @@ public class LLWordHelper {
 			uId = new Long(_getRequest().getRemoteUser()).longValue();
 		} catch (Exception e) {
 			_error("Error occured during userId conversion: " + e);
-			e.printStackTrace();
 		}
 		setUserId(uId);
 	}
@@ -188,7 +187,6 @@ public class LLWordHelper {
 				prefs.store();
 			} catch (Exception e1) {
 				_error("Error occured during preferences saving: " + e1);
-				e1.printStackTrace();
 			}
 
 			w = new LLWordImpl();
@@ -272,7 +270,6 @@ public class LLWordHelper {
 			prefs.store();
 		} catch (Exception e1) {
 			_error("Error occured during preferences saving: " + e1);
-			e1.printStackTrace();
 		}
 
 		LLWordPair pair = null;

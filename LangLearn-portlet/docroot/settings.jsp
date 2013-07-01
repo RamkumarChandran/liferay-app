@@ -68,6 +68,13 @@ if (userId != -1) {
 	}
 }
 %>
+<%
+	if (userId == -1) {
+		%>
+		<center><%=res.getString("LangLearn.logIn") %></center>
+		<%			
+	} else {
+%>
 <aui:form action="${saveSettingsUrl}" onSubmit="return false;"
 	method="POST">
 	<aui:input type="hidden" name="userId" value="<%=userId%>" />
@@ -124,7 +131,7 @@ if (userId != -1) {
 					value="<%=wordsPerDay%>" style="width:30%; text-align:right;">
 					<aui:validator name="required" />
 					<aui:validator name="digits" />
-					<aui:validator name="range">[1,100]</aui:validator>
+					<aui:validator name="range">[1,300]</aui:validator>
 				</aui:input></td>
 		</tr>
 	</table>
@@ -139,3 +146,6 @@ if (userId != -1) {
 	<aui:input type="hidden" name="opt" value="0" />
 	<aui:input type="hidden" name="actionType" value="0" />
 </aui:form>
+<%
+}
+%>
